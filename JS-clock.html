@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>JS-clock</title>
+	<meta charset="UTF-8" />
+</head>
+<body>
+	<div id="header">
+		<h1>Canvas+JavaScript Animation Test</h1>
+	</div>
+	<p>
+	If you see nothing below, your browser probably doesn't support HTML Canvas or JavaScript.
+	</p>
+	<canvas id="scratch" width="400px" height="400px" style="width: 400px; height: 400px;"></canvas>
+	<div id="timeText"/>
+	<script type="text/javascript">
+var canvas;
+var width;
+var height;
+
+window.onload = function() {
+	canvas = document.getElementById("scratch");
+	if ( ! canvas || ! canvas.getContext ) {
+		return false;
+	}
+	width = parseInt(canvas.style.width);
+	height = parseInt(canvas.style.height);
+
+	var loop = function() {
+		draw();
+		var timer = setTimeout(loop,100);
+	};
+
+	loop();
+};
+
+function clockModel(ctx,col){
+	ctx.fillStyle = "#000";
+	ctx.beginPath();
+	ctx.moveTo(0.025, 0.2);
+	ctx.lineTo(0.05, 0.);
+	ctx.lineTo(0.025, -1);
+	ctx.lineTo(-0.025, -1);
+	ctx.lineTo(-0.05, 0.);
+	ctx.lineTo(-0.025, 0.2);
+	ctx.closePath();
+	ctx.fill();
+}
+
+function resetTrans(ctx){
+	ctx.setTransform(1,0,0,1,200,200);
+}
+
+function draw() {
+	var ctx = canvas.getContext('2d');
+	ctx.clearRect(0,0,width,height);
+
+	resetTrans(ctx);
+	ctx.beginPath();
+	for(var i = 0; i < 12; i++){
+		ctx.rotate(Math.PI / 6);
+		ctx.moveTo(0,100);
+		ctx.lineTo(0,110);
+	}
+	ctx.stroke();
+	resetTrans(ctx);
+	for(var i = 0; i < 12; i++){
+		var x = 80 * Math.sin(-i * Math.PI / 6);
+		var y = 80 * Math.cos(i * Math.PI / 6);
+		var text = (i + 5) % 12 + 1;
+		ctx.font = "bold 24px Helvetica";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "#777";
+		ctx.fillText(text, x, y);
+		ctx.strokeStyle = "#000";
+		ctx.lineWidth = 1;
+		ctx.strokeText(text, x, y);
+	}
+	ctx.beginPath();
+	ctx.arc(0, 0, 120, 0, Math.PI*2, false);
+	ctx.stroke();
+
+	var date = new Date();
+	var timeText = document.getElementById("timeText");
+	timeText.innerText = date;
+	resetTrans(ctx);
+	ctx.rotate(date.getSeconds() * 2 * Math.PI / 60);
+	ctx.scale(70,100);
+	clockModel(ctx,0);
+
+	resetTrans(ctx);
+	ctx.rotate((date.getMinutes() + date.getSeconds() / 60.) * 2 * Math.PI / 60);
+	ctx.scale(100,75);
+	clockModel(ctx,0);
+
+	resetTrans(ctx);
+	ctx.rotate((date.getHours() + date.getMinutes() / 60.) * 2 * Math.PI / 12);
+	ctx.scale(150,50);
+	clockModel(ctx,0);
+
+	ctx.setTransform(1,0,0,1,0,0);
+}
+	</script>
+</body>
+</html>
